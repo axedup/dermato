@@ -1,0 +1,129 @@
+library(TraMineR)
+
+patientd<-TABKRIS(baz=dermato[-14,],vect.var = c( "sexe", "immunodep", "vih", "trans", "plaie", 
+                                           "ulcere", "epider", "brulure", "irradie", "prof", "uva", "phototype", 
+                                           "autre_cancer", "insuff_organe", "comor_transplant", "maladie_chro", 
+                                           "cardiovascu", "aap", "is", "ac","ecog_pre"),
+                  vect.quali = rep(1,21),
+                  varint=NULL,valvarint = NULL,
+                  nomvarint = NULL,
+                  test=NULL,
+                  vecnoms=c("Sexe H/F", "immunoD", 
+                            "CV VIH stade IV", "Transplanté", "Plaie chronique", "ulcère chronique", 
+                            "épidermolyse bulleuse", "brulure", "zone irradiée", "profession photoexposée", 
+                            "PUVA/UVB", "phototype", "comorbidités : autre cancer", "comorbidités: insuff d'organe", 
+                            "comorbidité: transplanté", "comorbidité: maladie chronique", 
+                            "comorbidité: cardiovascu", "TT associé:  AAP", "TT associé:  IS", 
+                            "TT associé:  AC","ECOG pré-chimio"),valeurs=NULL,
+                  vecrefs=NULL,varassoc=NULL, codassoc=NULL,langue="fr",digits=2)
+                  
+
+tumeursd<-TABKRIS(baz=dermato,vect.var = c( "loca_prim", "tete_cou", "gg", "meta", "gg_meta", 
+                                            "pul_meta", "souscut_meta", "autre_meta", "ct"),
+                  vect.quali = rep(1,20),
+                  varint=NULL,valvarint = NULL,
+                  nomvarint = NULL,
+                  test=NULL,
+                  vecnoms=c("Localisation primitif", "Tête et cou ", "Gg régionaux", 
+                            "Meta synchrone ", "Méta: gg à distance", 
+                            "Méta: pulmonaire", "Méta: sous cutané", 
+                            "Méta: autre", "cT"),valeurs=NULL,
+                  vecrefs=NULL,varassoc=NULL, codassoc=NULL,langue="fr",digits=2)
+
+
+
+histod<-TABKRIS(baz=dermato,vect.var = c( "ypt", "ypn", 
+                                          "np", "ngg", "ggr", "histo", "epais", "diff", "epn", "emboles", 
+                                          "marges_chir"),
+                  vect.quali = c(1,1,0,rep(1,20)),
+                  varint=NULL,valvarint = NULL,
+                  nomvarint = NULL,
+                  test=NULL,
+                  vecnoms=c("ypT","ypN", " Nb N+", 
+                            " Nb gg analysés", "Rupture cap", 
+                            "Histologie", "Epaissseur", "Différenciation", 
+                            "EPN", "Emboles vasc", "Marges chir"),valeurs=NULL,
+                  vecrefs=NULL,varassoc=NULL, codassoc=NULL,langue="fr",digits=2)
+
+
+
+chird<-TABKRIS(baz=dermato,vect.var = c( "chir_prim", 
+                                         "aeg_nc", "extlc_nc", "extm_nc", "refus_nc", "neoadj", 
+                                         "ggsenti", "ggsentip", "curage"),
+                vect.quali = c(rep(1,20)),
+                varint=NULL,valvarint = NULL,
+                nomvarint = NULL,
+                test=NULL,
+                vecnoms=c("Chirurgie primitif", "Motif non chir: AEG", "Motif non chir: extension lr", 
+                          "Motif non chir: extension métastatique", "Motif non chir: refus patient", 
+                          "TT néo adjuvant", "GG sentinelle", 
+                          "GG sentinelle +", "Curage"),valeurs=NULL,
+                vecrefs=NULL,varassoc=NULL, codassoc=NULL,langue="fr",digits=2)
+
+
+chimiod<-TABKRIS(baz=dermato,vect.var = c("type_pla", "tox_max", "rte", "rte_neo", 
+                                           "rte_adj", "rte_meta", "rte_seule", "rct", "rte_loc", "dt_pri", 
+                                           "dt_gg", "nb_lignestt","rte_tox", "renduop", "local"),
+               vect.quali = c(1,rep(1,8),0,0,rep(1,9)),
+               varint=NULL,valvarint = NULL,
+               nomvarint = NULL,
+               test=NULL,
+               vecnoms=c("Type platine", "grade max toxicité", 
+                         "RTE", "RTE néoadjuvante", "RTE adjuvante", "RTE métastatique", 
+                         "RTE seule", "RCT concomittante", "RTE localisation", 
+                         "Dose totale sur primitif (Gray)", "Dose totale sur gg (Gray)","Nbr lignes tt sys", 
+                         "Toxicité post RTE", "Rendu opérable", 
+                         "localisation progression/récidive"),valeurs=NULL,
+               vecrefs=NULL,varassoc=NULL, codassoc=NULL,langue="fr",digits=2)
+
+chimiod2<-TABKRIS(baz=dermato,vect.var = c("strategie1", "grp_tt1", "strategie2", "grp_tt2", 
+                                           "strategie3", "grp_tt3", "strategie4", "grp_tt4"),
+                 vect.quali = c(1,rep(1,9)),
+                 varint=NULL,valvarint = NULL,
+                 nomvarint = NULL,
+                 test=NULL,
+                 vecnoms=c("Stratégie l1","Type l1","Stratégie l2","Type l2","Stratégie l3","Type l3"
+                           ,"Stratégie l4","Type l4"),valeurs=NULL,
+                 vecrefs=NULL,varassoc=NULL, codassoc=NULL,langue="fr",digits=2)
+
+
+
+
+
+
+outd<-TABKRIS(baz=dermato,vect.var = c( "br", "ligne_br"),
+                 vect.quali = c(1,1),
+                 varint=NULL,valvarint = NULL,
+                 nomvarint = NULL,
+                 test=NULL,
+                 vecnoms=c("Meilleure réponse", "Lignes meilleure réponse"),valeurs=NULL,
+                 vecrefs=NULL,varassoc=NULL, codassoc=NULL,langue="fr",digits=2)
+
+mvad.labels=c("CT","CT+Erbi","Erbitux","RTE+CT","RTE+CT+Erbi","RT+Erbi","Rte seule","AntiPD1")
+
+
+dermato<-dermato[order(dermato$grp_tt1,dermato$grp_tt2),]
+
+
+mvad.seq<-seqdef(dermato, c(86,96))
+mvad.seq2<-seqdef(dermato, c(86,96,104,111))
+
+par('mar')->parametre
+
+par(mar=par('mar')+c(0,0,0,3))
+seqtab(mvad.seq, idxs = 0)
+png("C:/Users/adupont/Documents/thesemarie/seqf2.png")
+seqfplot(mvad.seq,weighted=FALSE,with.legend="right",idxs=0,border=NA,xtlab=c("1 ère ligne","2 nde ligne"))
+dev.off()
+png("C:/Users/adupont/Documents/thesemarie/seqi2.png")
+seqiplot(mvad.seq,weighted=FALSE,with.legend="right",idxs=0,border=NA,xtlab=c("1 ère ligne","2 nde ligne"))
+dev.off()
+
+seqtab(mvad.seq, idxs = 0)
+
+png("C:/Users/adupont/Documents/thesemarie/seqf.png")
+seqfplot(mvad.seq2,weighted=FALSE,with.legend="right",idxs=0,border=NA,xtlab=c("1 ère ligne","2 nde ligne","3ème ligne","4ème ligne"))
+dev.off()
+png("C:/Users/adupont/Documents/thesemarie/seqi.png")
+seqiplot(mvad.seq2,weighted=FALSE,with.legend="right",idxs=0,border=NA,xtlab=c("1 ère ligne","2 nde ligne","3ème ligne","4ème ligne"))
+dev.off()
