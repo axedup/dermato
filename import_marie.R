@@ -226,6 +226,25 @@ levels(dermato$grp_tt4)<-c("CT+Erbi","Erbitux","CT","RTE+Erbi","RTE+CT","RTE+CT+
 table(dermato$grp_tt4,exclude=NULL)
 
 
+dermato$chir1<-ifelse(is.na(dermato$date_chir1),"Pas de chir","Chir")
+table(dermato$chir1,exclude=NULL)
+dermato$chir2<-ifelse(is.na(dermato$date_chir2),"Pas de chir","Chir")
+
+
+
 dermato$ddn<-as.Date(as.character(dermato$ddn),format="%d/%m/%Y")
 dermato$date_dia_iv<-as.Date(as.character(dermato$date_dia_iv),format="%d/%m/%Y")
 dermato$date_fu<-as.Date(as.character(dermato$date_fu),format="%d/%m/%Y")
+
+table(dermato$deces,exclude = NULL)
+dermato$decesf<-ifelse(dermato$deces==1 | dermato$deces==2,1,0)
+table(dermato$decesf,exclude = NULL)
+
+table(dermato$deces,exclude=NULL)
+dermato$deces<-as.factor(dermato$deces)
+levels(dermato$deces)<-c("Pas de decès","Onco","Autres causes")
+table(dermato$deces,exclude=NULL)
+
+
+
+dermato$delai_dc<-difftime(dermato$date_fu,dermato$date_dia_iv)/30.25

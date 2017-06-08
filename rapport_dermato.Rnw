@@ -1,0 +1,277 @@
+\documentclass[a4paper,11pt] {article}
+\hfuzz=100pt 
+%\documentclass[a4paper,article,oneside,10pt]{memoir}
+\usepackage[francais]{babel}
+\usepackage[latin1]{inputenc}
+\usepackage[T1]{fontenc}
+%\usepackage[lucidasmallscale, nofontinfo]{lucimatx}
+%\usepackage{times}
+\usepackage{graphicx}
+\usepackage{longtable}
+\usepackage{here}
+\usepackage{ctable}
+\usepackage{pdflscape}
+\usepackage{pst-tree}
+\usepackage{longtable}
+\usepackage{multirow}
+\usepackage{dcolumn}
+\usepackage{Sweave}
+\usepackage{lscape}
+\usepackage{geometry}
+\usepackage{graphicx}
+\usepackage{subfig}
+\usepackage{caption}
+%\usepackage[pdftex,bookmarks=true,bookmarksnumbered=true,
+%            hypertexnames=false,breaklinks=true,
+%            linkbordercolor={0 0 1}]{hyperref}
+
+%--------------
+
+%
+%\usepackage{fancyhdr}
+%\pagestyle{empty}
+%\pagestyle{fancy}
+%\fancyhf{}
+%%\renewcommand{\chaptermark}[1]{\markboth{\bsc{\chaptername~\thechapter{} :} #1}{}}
+%%\renewcommand{\sectionmark}[1]{\markright{\thesection{} #1}}
+%%\lfoot{Confidential, for the exclusive use of DMC members}
+%%\renewcommand{\footrulewidth}{0.4pt}
+%%\renewcommand{\headrulewidth}{0.4pt}
+%%\renewcommand{\thepage}{\arabic{\page}}
+%\setcounter{tocdepth}{5} % Dans la table des matieres
+%\setcounter{secnumdepth}{5} % Avec un numero.
+%%\mainmatter
+%\pagenumbering{arabic}\setcounter{page}{1}
+%\rhead{\thepage}
+%\lhead{\leftmark}
+%%\renewcommand{\thesection}{\Roman{section}}
+%%\renewcommand{\thesection}{\Roman{section}}
+%%\renewcommand{\thesection}{\Roman{section}}
+%%\renewcommand{\thesubsection}{\thesection .\Alph{subsection}}
+%
+%--------------
+\begin{document}
+\title{Rapport  d'analyses statistiques}
+\author{Axelle Dupont, sbim, Hôpital Saint Louis, Paris}
+\date\today
+
+%------------------------------------------------------------
+
+
+
+
+
+
+%-------------------------------------------------------------
+
+
+
+
+
+\SweaveOpts{concordance=TRUE}
+
+
+\setkeys{Gin}{width=1\textwidth}
+\maketitle
+
+%\pagestyle{protoc}
+\tableofcontents
+\pagebreak[4]
+\listoftables
+\listoffigures
+%\SweaveOpts{eval=TRUE,echo=false,fig=TRUE}
+
+
+\pagebreak[4]
+%\chapter{Objectif}
+
+\section{Objectifs}
+
+
+\section{Methodes}
+
+
+
+\pagebreak[4]
+\section{Resultats}
+
+
+
+<<label=tab:pratiq ,echo=FALSE,results=hide>>=
+
+source("C:/Users/adupont/Documents/projetstlouis/scripts/BibliR.R")
+source("C:/Users/adupont/Documents/projetstlouis/scripts/init.R")
+source("C:/Users/adupont/Documents/thesemarie/import_marie.R")
+source("C:/Users/adupont/Documents/thesemarie/descri_marie.R")
+# source("C:/Users/adupont/Documents/projetstlouis/scripts/import.R")
+# source("C:/Users/adupont/Documents/projetstlouis/scripts/descri.R")
+# source("C:/Users/adupont/Documents/projetstlouis/scripts/survie.R")
+#source("C:/Users/adupont/Documents/projetstlouis/scripts/survie_test.R")
+
+@
+
+
+
+ \Sexpr{length(unique(dermato$nip))} patients ont été inclus soit \Sexpr{nrow(dermato)} tumeurs traitées.
+ \subsection{Description des patients}
+ 
+<<label=tab:condi ,echo=FALSE,results=tex>>=
+print(xtable (patientd,
+caption= "Caractéristiques des patients ",
+label="tab:condi",
+table.placement="htp",caption.placement="top"),
+tabular.environment="longtable",
+floating=F,
+include.rownames=F,
+ sanitize.text.function = function(x){x}  )
+@
+ \subsection{Description des tumeurs}
+<<label=tab:avtg ,echo=FALSE,results=tex>>=
+print(xtable (tumeursd,
+caption= "Caractéristiques des Tumeurs",
+label="tab:avtg",
+table.placement="htp",caption.placement="top"),
+tabular.environment="longtable",
+floating=F,
+include.rownames=F,
+ sanitize.text.function = function(x){x}  )
+@
+\pagebreak
+ \subsection{Description histologique}
+<<label=tab:g ,echo=FALSE,results=tex>>=
+print(xtable (histod,
+caption= "Caractéristiques histologiques",
+label="tab:g",
+table.placement="htp",caption.placement="top"),
+tabular.environment="longtable",
+floating=F,
+include.rownames=F,
+ sanitize.text.function = function(x){x}  )
+@
+
+ \subsection{Descriptions des traitements}
+<<label=tab:gu ,echo=FALSE,results=tex>>=
+print(xtable (chird,
+caption= "Chirurigie",
+label="tab:gu",
+table.placement="htp",caption.placement="top"),
+tabular.environment="longtable",
+floating=F,
+include.rownames=F,
+ sanitize.text.function = function(x){x}  )
+@
+
+
+<<label=tab:guk ,echo=FALSE,results=tex>>=
+print(xtable (chimiod,
+caption= "Chimiothérapie/Radiothérapie",
+label="tab:guk",
+table.placement="htp",caption.placement="top"),
+tabular.environment="longtable",
+floating=F,
+include.rownames=F,
+ sanitize.text.function = function(x){x}  )
+@
+
+
+<<label=tab:guki ,echo=FALSE,results=tex>>=
+print(xtable (chimiod2,
+caption= "Lignes de chimiothérapie",
+label="tab:guki",
+table.placement="htp",caption.placement="top"),
+tabular.environment="longtable",
+floating=F,
+include.rownames=F,
+ sanitize.text.function = function(x){x}  )
+@
+
+<<label=tab:gukii ,echo=FALSE,results=tex>>=
+print(xtable (chimiod3,
+caption= "Lignes de chimiothérapie selon la stratégie de la 1ère ligne",
+label="tab:gukii",
+table.placement="htp",caption.placement="top"),
+tabular.environment="longtable",
+floating=F,
+include.rownames=F,
+ sanitize.text.function = function(x){x}  )
+@
+
+
+
+
+\subsection{Outcomes}
+
+
+ 
+<<label=tab:b ,echo=FALSE,results=tex>>=
+print(xtable (outd,
+caption= "Réponses au traitement",
+label="tab:b",
+table.placement="htp",caption.placement="top"),
+tabular.environment="longtable",
+floating=F,
+include.rownames=F,
+ sanitize.text.function = function(x){x}  )
+@
+
+
+\subsection{Description des séquences de chimiothérapie}
+
+\begin{center}
+
+\includegraphics[width=0.8\textwidth]{C:/Users/adupont/Documents/thesemarie/seqi2.png}
+\captionof{figure}{Ensemble des séquences des deux premières lignes de chimiothérapie pour les 42 patients}
+
+\end{center}
+
+
+\begin{landscape}
+<<label=tab:c ,echo=FALSE,results=tex>>=
+print(xtable (nuo,
+caption= "Transitions entre les 2 première lignes de chimio",
+label="tab:c",
+table.placement="htp",caption.placement="top"),
+tabular.environment="longtable",
+floating=F,
+include.rownames=F,
+ sanitize.text.function = function(x){x}  )
+@
+
+\end{landscape}
+
+
+
+\begin{center}
+
+\includegraphics[width=0.8\textwidth]{C:/Users/adupont/Documents/thesemarie/seqf2.png}
+\captionof{figure}{Répartiton des deux premières lignes de chimiothérapie}
+
+\end{center}
+<<label=tab:d ,echo=FALSE,results=tex>>=
+print(xtable (b,
+caption= "Répartition des lignes de chimiothérapie",
+label="tab:d",
+table.placement="htp",caption.placement="top"),
+tabular.environment="longtable",
+floating=F,
+include.rownames=TRUE,
+ sanitize.text.function = function(x){x}  )
+@
+
+\begin{center}
+
+\includegraphics[width=0.8\textwidth]{C:/Users/adupont/Documents/thesemarie/seqi.png}
+\captionof{figure}{Ensemble des séquences des 4 lignes de chimiothérapie pour les 42 patients}
+
+\end{center}
+
+\begin{center}
+
+\includegraphics[width=0.8\textwidth]{C:/Users/adupont/Documents/thesemarie/seqf.png}
+\captionof{figure}{Répartiton des lignes de chimiothérapie}
+
+\end{center}
+
+
+
+\end{document}
