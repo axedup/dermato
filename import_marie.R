@@ -235,6 +235,10 @@ dermato$chir2<-ifelse(is.na(dermato$date_chir2),"Pas de chir","Chir")
 dermato$ddn<-as.Date(as.character(dermato$ddn),format="%d/%m/%Y")
 dermato$date_dia_iv<-as.Date(as.character(dermato$date_dia_iv),format="%d/%m/%Y")
 dermato$date_fu<-as.Date(as.character(dermato$date_fu),format="%d/%m/%Y")
+dermato$date_chir<-as.Date(as.character(dermato$date_chir),format="%d/%m/%Y")
+dermato$date_l1<-as.Date(as.character(dermato$date_l1),format="%d/%m/%Y")
+dermato$date_l2<-as.Date(as.character(dermato$date_l2),format="%d/%m/%Y")
+
 
 table(dermato$deces,exclude = NULL)
 dermato$decesf<-ifelse(dermato$deces==1 | dermato$deces==2,1,0)
@@ -248,3 +252,21 @@ table(dermato$deces,exclude=NULL)
 
 
 dermato$delai_dc<-difftime(dermato$date_fu,dermato$date_dia_iv)/30.25
+
+
+### test ###
+
+
+test<-dermato[,c("nip","date_dia_iv","date_chir","date_l1","date_l2")]
+
+test[,2]<-as.character(test[,2])
+l<-reshape(dermato[,c("nip","date_dia_iv","date_chir","date_l1","date_l2")], varying =
+             c("date_dia_iv","date_chir","date_l1","date_l2"), v.names="dates",
+           timevar="ref", times=c("date_dia_iv","date_chir","date_l1","date_l2"),
+           direction="long")
+
+
+l<-l[order(l$nip),]
+
+
+ret<-
