@@ -267,6 +267,13 @@ l<-reshape(dermato[,c("nip","date_dia_iv","date_chir","date_l1","date_l2")], var
 
 
 l<-l[order(l$nip),]
+a<-dermato$date_l1
+b<-dermato$date_l1 +6
+idd<-1:42
+tu<-rep(c("vr","f","aa"),14)
+
+fra<-data.frame(idd,a,b,tu)
 
 
-ret<-
+seqdef(fra,var=c("idd","a","b","tu"), informat = "SPELL", process = FALSE)
+seqformat(fra,var=c("idd","a","b","tu"), from = "SPELL", to = "STS")
