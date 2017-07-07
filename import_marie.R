@@ -1,8 +1,14 @@
+library(TraMineR)
+library(ggplot2)
+library(grid)
+
+
 dermato<-read.csv2("C:/Users/adupont/Documents/thesemarie/dermato.csv",na.strings=c("","non précisé"))
 noms<-read.csv2("C:/Users/adupont/Documents/thesemarie/noms.csv",na.strings=c("","non précisé"))
 summary(dermato)
 
 dermato$nip<-as.factor(dermato$nip)
+reforder<-dermato$nip
 dermato$immunodep<-as.factor(dermato$immunodep)
 levels(dermato$immunodep)<-c("Non","Greffe","VIH","Autre")
 table(dermato$immunodep,exclude=NULL)
@@ -10,6 +16,9 @@ dermato$vih<-as.factor(dermato$vih)
 levels(dermato$vih)<-c("Controlée")
 table(dermato$vih,exclude=NULL)
 
+
+
+levels(dermato$phototype)<-c("1", "2"  , "3"  , "6"   , "Albinos (1)","4","5")
 table(dermato$trans,exclude=NULL)
 table(dermato$autre_cancer,exclude=NULL)
 
@@ -77,6 +86,8 @@ table(dermato$chir_prim,exclude=NULL)
 dermato$chir_prim<-as.factor(dermato$chir_prim)
 levels(dermato$chir_prim)<-c("Non","D'emblée","Après CT","Après RCT")
 table(dermato$chir_prim,exclude=NULL)
+
+
 
 
 
@@ -238,8 +249,17 @@ dermato$date_fu<-as.Date(as.character(dermato$date_fu),format="%d/%m/%Y")
 dermato$date_chir<-as.Date(as.character(dermato$date_chir),format="%d/%m/%Y")
 dermato$date_l1<-as.Date(as.character(dermato$date_l1),format="%d/%m/%Y")
 dermato$date_l2<-as.Date(as.character(dermato$date_l2),format="%d/%m/%Y")
+dermato$date_l3<-as.Date(as.character(dermato$date_l3),format="%d/%m/%Y")
+dermato$date_l4<-as.Date(as.character(dermato$date_l4),format="%d/%m/%Y")
 
+dermato$date_p1<-as.Date(as.character(dermato$date_p1),format="%d/%m/%Y")
+dermato$date_ppc1<-as.Date(as.character(dermato$date_ppc1),format="%d/%m/%Y")
 
+dermato$date_p2<-as.Date(as.character(dermato$date_p2),format="%d/%m/%Y")
+#dermato$date_ppc2<-as.Date(as.character(dermato$date_ppc2),format="%d/%m/%Y")
+
+dermato$date_p3<-as.Date(as.character(dermato$date_p3),format="%d/%m/%Y")
+dermato$date_p4<-as.Date(as.character(dermato$date_p4),format="%d/%m/%Y")
 table(dermato$deces,exclude = NULL)
 dermato$decesf<-ifelse(dermato$deces==1 | dermato$deces==2,1,0)
 table(dermato$decesf,exclude = NULL)
@@ -254,26 +274,296 @@ table(dermato$deces,exclude=NULL)
 dermato$delai_dc<-difftime(dermato$date_fu,dermato$date_dia_iv)/30.25
 
 
-### test ###
+### PFC###
+
+dermato$pfst<-ifelse(dermato$reponse_l1=="PROGRESSION" | dermato$response_chir1 %in% c("progression")|
+  dermato$reponse_l2=="PROGRESSION" & !is.na(dermato$reponse_l2)
+  |   dermato$reponse_l3=="PROGRESSION" & !is.na(dermato$reponse_l3)|
+    dermato$reponse_l4=="PROGRESSION" & !is.na(dermato$reponse_l4)|dermato$dn %in% c(3,5)
+  ,1,0)
+dermato$pfst<-ifelse(dermato$deces %in% c("Onco","Autres causes")  & 
+                       dermato$pfst==0,1,dermato$pfst)
+table(dermato$pfst,exclude=NULL)
+
+dermato$date_pfst<-ifelse(dermato$reponse_l1=="PROGRESSION",dermato$date_p1,NA)
+dermato$date_pfst<-ifelse(dermato$reponse_l2=="PROGRESSION" & is.na(dermato$date_pfst),
+                          dermato$date_p2,dermato$date_pfst)
+dermato$date_pfst<-ifelse(dermato$reponse_l3=="PROGRESSION"  & is.na(dermato$date_pfst)
+                          ,dermato$date_p3,dermato$date_pfst)
+dermato$date_pfst<-ifelse(dermato$reponse_l4=="PROGRESSION" & is.na(dermato$date_pfst)
+                          ,dermato$date_p4,dermato$date_pfst)
+dermato$date_pfst<-ifelse(dermato$dn %in% c(3,5)& is.na(dermato$date_pfst)
+                          ,dermato$date_fu,dermato$date_pfst)
+dermato$date_pfst<-ifelse(dermato$deces %in% c("Onco","Autres causes")  & is.na(dermato$date_pfst)
+                          ,dermato$date_fu,dermato$date_pfst)
+dermato$date_pfst<-ifelse(dermato$pfst==0, dermato$date_fu,dermato$date_pfst)
+table(dermato$date_pfst,exclude = NULL)
+
+dermato$date_pfst<-as.Date(dermato$date_pfst, origin="1970-01-01")
 
 
-test<-dermato[,c("nip","date_dia_iv","date_chir","date_l1","date_l2")]
+dermato$delai_pfs<-as.numeric(difftime(dermato$date_pfst,dermato$date_dia_iv)/30.25)
 
+
+### PFS 1ère ligne
+dermato$pfs<-ifelse(dermato$reponse_l1=="PROGRESSION"
+                    | dermato$response_chir1 %in% c("progression"),1,0)
+table(dermato$pfs,exclude=NULL)
+dermato$pfs<-ifelse(dermato$dn %in% c(3,5)  & is.na(dermato$date_l2)
+                    & is.na(dermato$date_chir1),1,dermato$pfs)
+
+
+
+dermato$pfs<-ifelse(dermato$deces %in% c("Onco","Autres causes")  & 
+                      is.na(dermato$date_l2),1,dermato$pfs)
+
+table(dermato$pfs,is.na(dermato$date_l2),exclude=NULL)
+
+
+
+dermato$date_pfs<-ifelse(!is.na(dermato$date_p1),dermato$date_p1,NA)
+dermato$date_pfs<-ifelse(is.na(dermato$date_pfs),dermato$date_ppc1,dermato$date_pfs)
+dermato$date_pfs<-ifelse(is.na(dermato$date_pfs) & !is.na(dermato$date_l2),dermato$date_l2,dermato$date_pfs)
+dermato$date_pfs<-ifelse(is.na(dermato$date_pfs),dermato$date_fu,dermato$date_pfs)
+dermato$date_pfs<-as.Date(dermato$date_pfs,origin = "1970-01-01")
+
+dermato$delai_pfs1<-as.numeric(difftime(dermato$date_pfs,dermato$date_l1)/30.25)
+
+
+dermato$d1<-dermato$decesf
+dermato$d1<-ifelse(!is.na(dermato$date_l2),0,dermato$d1)
+
+dermato$date_deces1<-dermato$date_fu
+dermato$date_deces1<-ifelse(dermato$d1==1,dermato$date_fu,dermato$date_l2)
+dermato$date_deces1<-ifelse(dermato$d1==0 & is.na(dermato$date_l2),dermato$date_fu,dermato$date_deces1)
+dermato$date_deces1<-as.Date(dermato$date_deces1,origin = "1970-01-01")
+
+
+dermato$delai_deces1<-as.numeric(difftime(dermato$date_deces1,dermato$date_l1)/30.25)
+
+
+### PFS 2ème ligne
+dermato$pfs2<-ifelse(dermato$reponse_l2=="PROGRESSION"
+                    | dermato$response_chir2 %in% c("progression"),1,0)
+dermato$pfs2<-ifelse(dermato$dn %in% c(3,5)  & is.na(dermato$date_l3),1,dermato$pfs2)
+
+dermato$pfs2<-ifelse(dermato$deces %in% c("Onco","Autres causes")  & 
+                      is.na(dermato$date_l3),1,dermato$pfs2)
+
+
+
+table(dermato$pfs2,exclude=NULL)
+
+dermato$date_pfs2<-ifelse(!is.na(dermato$date_p2),dermato$date_p2,dermato$date_l3)
+#dermato$date_pfs2<-ifelse(is.na(dermato$date_pfs2),dermato$date_ppc2,dermato$date_pfs2)
+dermato$date_pfs2<-ifelse(is.na(dermato$date_pfs2),dermato$date_fu,dermato$date_pfs2)
+dermato$date_pfs2<-as.Date(dermato$date_pfs2,origin = "1970-01-01")
+
+dermato$delai_pfs2<-as.numeric(difftime(dermato$date_pfs2,dermato$date_l2)/30.25)
+
+dermato$d2<-dermato$decesf
+dermato$d2<-ifelse(!is.na(dermato$date_l3),0,dermato$d2)
+
+dermato$date_deces2<-dermato$date_fu
+dermato$date_deces2<-ifelse(dermato$d2==1,dermato$date_fu,dermato$date_l3)
+dermato$date_deces2<-ifelse(dermato$d2==0 & is.na(dermato$date_l3),dermato$date_fu,dermato$date_deces2)
+dermato$date_deces2<-as.Date(dermato$date_deces2,origin = "1970-01-01")
+
+
+dermato$delai_deces2<-as.numeric(difftime(dermato$date_deces2,dermato$date_l2)/30.25)
+
+
+
+
+
+
+### test ### ######  
+
+
+dermato<-dermato[match(reforder, dermato$nip),]
+
+dermato$nip2<-1:42
+test<-dermato[,c("nip2","date_dia_iv","date_l1","date_l2","date_l3","date_l4","date_fu")]
+ 
 test[,2]<-as.character(test[,2])
-l<-reshape(dermato[,c("nip","date_dia_iv","date_chir","date_l1","date_l2")], varying =
-             c("date_dia_iv","date_chir","date_l1","date_l2"), v.names="dates",
-           timevar="ref", times=c("date_dia_iv","date_chir","date_l1","date_l2"),
+ l<-reshape(dermato[,c("nip2","date_dia_iv","date_l1","date_l2","date_l3","date_l4","date_fu")], varying =
+             c("date_dia_iv","date_l1","date_l2","date_l3","date_l4","date_fu"), v.names="dates",
+            timevar="ref", times=c("date_dia_iv","date_l1","date_l2","date_l3","date_l4","date_fu"),
            direction="long")
+# 
+# 
+ l<-l[order(l$nip2),]
+# a<-dermato$date_l1
+# b<-dermato$date_l1 +6
+# idd<-1:42
+# tu<-rep(c("vr","f","aa"),14)
+# 
+# fra<-data.frame(idd,a,b,tu)
+# 
+# 
+# seqdef(fra,var=c("idd","a","b","tu"), informat = "SPELL", process = FALSE)
+# seqformat(fra,var=c("idd","a","b","tu"), from = "SPELL", to = "STS")
+
+ 
+ 
+testu<-dermato[,c("nip2","date_dia_iv","grp_tt1","grp_tt2","grp_tt3","grp_tt4","date_fu")]
+testu$grp_tt1<-as.character(testu$grp_tt1) 
+testu$grp_tt2<-as.character(testu$grp_tt2) 
+testu$grp_tt3<-as.character(testu$grp_tt3) 
+testu$grp_tt4<-as.character(testu$grp_tt4) 
+testu$nip<-as.character(testu$nip) 
+testu$date_dia_iv<-as.character(testu$date_dia_iv) 
+testu$date_fu<-as.character(testu$date_fu) 
 
 
-l<-l[order(l$nip),]
-a<-dermato$date_l1
-b<-dermato$date_l1 +6
-idd<-1:42
-tu<-rep(c("vr","f","aa"),14)
+ testu[,2]<-as.character(test[,2])
+ lu<-reshape(testu[,c("nip2","date_dia_iv","grp_tt1","grp_tt2","grp_tt3","grp_tt4","date_fu")], 
+             varying =
+              c("date_dia_iv","grp_tt1","grp_tt2","grp_tt3","grp_tt4","date_fu"), v.names="TT",
+            timevar="ref", times=c("date_dia_iv","grp_tt1","grp_tt2","grp_tt3","grp_tt4","date_fu"),
+            direction="long")
+ # 
+ # 
+ lu<-lu[order(lu$nip2),]
 
-fra<-data.frame(idd,a,b,tu)
+ 
+lw<-cbind(l,lu) 
+lw<-lw[!is.na(lw$dates),]
+ 
+ 
+ DATA<-NULL 
+ for( i in unique(lw$nip2)){
+   
+   data<-lw[lw$nip2==i,]
+   data$end<-NA
+   for (j in 1: nrow(data)-1){
+     data$end[j]<-data$dates[j+1]
+     
+   }
+   
+   data$end[nrow(data)]<-data$dates[nrow(data)]
+   data$end<-as.Date(data$end,origin="1970-01-01")
+   data$TT[1]<-"Chmiothérapie non débutée"
+   data$TT[nrow(data)]<-NA
+   DATA<-rbind(DATA,data)
+ }
+ 
+ #frat<-DATA[DATA$ref=="date_dia_iv", c("nip2","dates")]
+ 
+ DATA$dates<-as.numeric( DATA$dates)
+ DATA$end<-as.numeric( DATA$end)
+ 
+DATA$end[DATA$Chimiothrapie=="Anti PD1 ATu" & DATA$nip2=="39" & DATA$ref=="date_l3"]<-17234
+ #frat$dates<-as.numeric(frat$dates)
+ 
+ # u<-seqformat(DATA,var=c("nip","dates","end","TT"), from = "SPELL", to = "STS",id="nip",begin="dates",
+ #              end="end",status = "TT",compressed = TRUE,process=TRUE,pdata=frat,pvar=c("nip","dates"))
+ # 
+ 
+ DATA$diff<-as.numeric(DATA$end-DATA$dates)/30.25
+ 
+ 
+ D<-DATA[DATA$nip2==1,]
+
+ le<-data.frame(sym=c("+ : progression","* : deces"), col=c("black","black"))
+ 
+ 
+ for (i in unique(DATA$nip2)){
+   DATA$h[DATA$nip2==i]<-c(nrow(DATA[DATA$nip2==i,]):1)
+   
+ }
+ 
+ DATA$Chimiothrapie<-DATA$TT
+ 
+ 
+ 
+ 
+ temp.plot<-ggplot(data=DATA, aes(y=diff, x=as.factor(nip2), fill=Chimiothrapie,group = h))+
+   geom_bar(stat = "identity")+
+   labs(title = "Séquence de chimiothérapie")+
+   ylab("Délai depuis date de diagnostic stade IV (mois)")+
+   xlab("Patients")+
+   coord_flip()+
+   scale_color_manual(breaks=le$sym, values=le$col)
+
+  
+ 
+ 
+ test<-data.frame(n=c("", "*", "*", "*", "*", "*", "*", "*", "*", "*", "*", "", "*", "*", "", "*", "*", "*", "*", "*", 
+                      "*", "*", "*", "*", "*", "", "*", "*", "*", "*", "*", "", "*", "*", "*", "*", "*", "*", "", "*", "*", 
+                      "*"), xmin=1:42,ypos=dermato$delai_dc)
+ 
+ 
+ for (ii in 1:nrow(test))
+   {
+     #display numbers at each visit
+   temp.plot= temp.plot+ annotation_custom(grob = textGrob(test$n[ii]),
+                                    xmin = test$x[ii],
+                                    xmax = test$x[ii],
+                                    ymin = test$ypos[ii],
+                                    ymax = test$ypos[ii])
+
+   }
+
+ 
+ dermato$pfstrash<-ifelse(dermato$reponse_l1=="PROGRESSION" | dermato$response_chir1 %in% c("progression")|
+                        dermato$reponse_l2=="PROGRESSION" & !is.na(dermato$reponse_l2)
+                      |   dermato$reponse_l3=="PROGRESSION" & !is.na(dermato$reponse_l3)|
+                        dermato$reponse_l4=="PROGRESSION" & !is.na(dermato$reponse_l4)|dermato$dn %in% c(3,5)
+                      ,1,0)
+ 
+ 
+ test<-data.frame(n=c("", "+", "+", "", "+", "+", "+", "+", "+", "+", "+", "", "+", "+", "", "", "+", "+", "+", "", 
+                      "", "", "", "+", "", "", "+", "+", "+", "+", "+", "+", "+", "+", "+", "+", "+", "", "+", "+", "", 
+                      "+"), xmin=1:42,ypos=dermato$delai_pfs)
+ 
+ 
+ for (ii in 1:nrow(test))
+ {
+   #display numbers at each visit
+   temp.plot= temp.plot+ annotation_custom(grob = textGrob(test$n[ii]),
+                                           xmin = test$x[ii],
+                                           xmax = test$x[ii],
+                                           ymin = test$ypos[ii],
+                                           ymax = test$ypos[ii])
+   
+ }
+ 
+ 
+ 
+ 
+ dermato$chirt<-ifelse(!is.na(dermato$date_chir),1,0)
+ 
+ 
+ # test<-data.frame(n=c("*", "*", "", "*", "", "", "", "*", "", "*", "*", "*", "*", "*", "", "*", "*", "*", "*", "*", 
+ #                       "", "", "*", "", "*", "", "*", "*", "*", "*", "*", "*", "*", "*", "", "", "*", "", "*", "*", "", 
+ #                       ""), xmin=1:42,ypos=difftime(dermato$date_chir,dermato$date_dia_iv))
+ # 
+ # 
+ # for (ii in 1:nrow(test))
+ # {
+ #   #display numbers at each visit
+ #   temp.plot= temp.plot+ annotation_custom(grob = textGrob(test$n[ii]),
+ #                                           xmin = test$x[ii],
+ #                                           xmax = test$x[ii],
+ #                                           ymin = test$ypos[ii],
+ #                                           ymax = test$ypos[ii])
+ #   
+ # }
+ # 
+ # 
+ # 
+ # 
+ 
+ gt <- ggplot_gtable(ggplot_build(temp.plot))
+ gt$layout$clip[gt$layout$name=="panel"] <- "off"
+ 
+ pdf(file="C:/Users/adupont/Documents/thesemarie/rapport_dermato-fig9822.pdf")
+plot(gt)
+dev.off()
 
 
-seqdef(fra,var=c("idd","a","b","tu"), informat = "SPELL", process = FALSE)
-seqformat(fra,var=c("idd","a","b","tu"), from = "SPELL", to = "STS")
+ ### En prenant en compte la chirurgie ### 
+
+dermato$chir_emblee<-ifelse(dermato$chir_prim=="D'emblée" & difftime(dermato$date_chir,dermato$date_dia_iv)>=0,1,0)
+table(dermato$chir_prim,dermato$chir_emblee,exclude=NULL)

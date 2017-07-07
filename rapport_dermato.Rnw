@@ -21,6 +21,15 @@
 \usepackage{graphicx}
 \usepackage{subfig}
 \usepackage{caption}
+
+
+\usepackage{lmodern}
+
+\usepackage{amsmath}
+
+\usepackage{amssymb}
+
+\usepackage{mathrsfs}
 %\usepackage[pdftex,bookmarks=true,bookmarksnumbered=true,
 %            hypertexnames=false,breaklinks=true,
 %            linkbordercolor={0 0 1}]{hyperref}
@@ -86,12 +95,18 @@
 %\chapter{Objectif}
 
 \section{Objectifs}
+Objectif principal : d'écrire les caractéristiques des patients, des tumeurs, des traitements ainsi que la séquence des lignes de chimiothérapie.
+Objectif secondaire : analyser la survie globale et la PFS en post chimiothérapie.
 
 
 \section{Methodes}
+Une cohorte rétrospective de patients diagnostiqués d'un CE cutané traités par chimiothérapie à Saint Louis entre le 01/01/2008 et le 31/12/2015 a été constituée.Des analyses descriptives ont été réalisées.
 
+La PFS (progression free survival) a été définie comme la réalisation d'un des évenements suivant : décés, progression, rechute.
+Pour la survie globale et la PFS post 1ére ligne de chimiothérapie et post 2ème ligne de chimiothérapie, nous avons considéré qu'une seconde ligne de chimiothérapie (ou troisième ligne dans le cadre de la survie post seconde ligne) était une censure si il n'y avait pas d'évenement avant celle ci. Nous avons considéré la progression aprés la chirurgie post chimiothérapie néoadjuvante comme un évenement.
+Les analyses de survie ont été réalisées en utilisant la méthode de Kaplan Maier et les survies de différents groupes ont été comparées avec le test du log Rank.
 
-
+Les analyses ont été réalisés avec le logiciel R avec le package TraMineR.
 \pagebreak[4]
 \section{Resultats}
 
@@ -187,7 +202,7 @@ include.rownames=F,
 
 <<label=tab:gukii ,echo=FALSE,results=tex>>=
 print(xtable (chimiod3,
-caption= "Lignes de chimiothérapie selon la stratégie de la 1ère ligne",
+caption= "Lignes de chimiothérapie selon la stratégie de la 1ére ligne",
 label="tab:gukii",
 table.placement="htp",caption.placement="top"),
 tabular.environment="longtable",
@@ -227,15 +242,17 @@ include.rownames=F,
 
 \begin{landscape}
 <<label=tab:c ,echo=FALSE,results=tex>>=
-print(xtable (nuo,
-caption= "Transitions entre les 2 première lignes de chimio",
+print(xtable (nuo2,
+caption= "Transitions entre les 2 premiére lignes de chimio",
 label="tab:c",
 table.placement="htp",caption.placement="top"),
 tabular.environment="longtable",
 floating=F,
-include.rownames=F,
+include.rownames=FALSE,
  sanitize.text.function = function(x){x}  )
 @
+
+Cette table se lit de la maniére suivante : en colonne c'est la premiére ligne de chimio et en ligne la seconde ligne de chimio. Par exemple, les patient ayant en premére ligne CT+ Erbi sont 40 \% avoir une CT seule en seconde ligne et 40\% n'ont pas de seconde ligne.  
 
 \end{landscape}
 
@@ -244,12 +261,12 @@ include.rownames=F,
 \begin{center}
 
 \includegraphics[width=0.8\textwidth]{C:/Users/adupont/Documents/thesemarie/seqf2.png}
-\captionof{figure}{Répartiton des deux premières lignes de chimiothérapie}
+\captionof{figure}{Pourcentage cumulé des différentes séquences possibles pour les 2 premiéres lignes de chimiothérapie}
 
 \end{center}
 <<label=tab:d ,echo=FALSE,results=tex>>=
 print(xtable (b,
-caption= "Répartition des lignes de chimiothérapie",
+caption= "Répartition des 2 premiéres lignes de chimiothérapie",
 label="tab:d",
 table.placement="htp",caption.placement="top"),
 tabular.environment="longtable",
@@ -268,9 +285,138 @@ include.rownames=TRUE,
 \begin{center}
 
 \includegraphics[width=0.8\textwidth]{C:/Users/adupont/Documents/thesemarie/seqf.png}
-\captionof{figure}{Répartiton des lignes de chimiothérapie}
+\captionof{figure}{Pourcentages cumulés des différentes séquences possibles pour les 4 lignes de chimiothérapie}
 
 \end{center}
+
+\begin{center}
+<<label=fig982B2,fig=TRUE,echo=FALSE, include=FALSE,eval=FALSE>>=
+plot(gt)
+@
+\includegraphics[width=0.8\textwidth]{C:/Users/adupont/Documents/thesemarie/rapport_dermato-fig9822.pdf}
+
+
+\captionof{figure}{Ensemble des séquences de chimiothérapie pour les 42 patients (* : décès, + : progression)}
+
+\end{center}
+Lecture de la figure : chaque couleur différente correspond é un traitement donc une ligne différente. Pour le patient 26, il n'a qu'une seule ligne de CT+ERBI (artificiellement la barre verte va jusqu'é sa date de point)
+
+\subsection{Survie et PFS}
+\subsubsection{Globale}
+La durée moyenne de suvi était \Sexpr{round(mean(as.numeric(dermato$delai_dc)),2)} mois (range \Sexpr{round(min(as.numeric(dermato$delai_dc)),2)} to \Sexpr{round(max(as.numeric(dermato$delai_dc)),2)}). 
+La survie globale (OS) à un an était de \Sexpr{round(re$surv[which.min((re$time-12)<0)-1],2)} mois (95 \% \Sexpr{round(re$lower[which.min((re$time-12)<0)],2)} - \Sexpr{round(re$upper[which.min((re$time-12)<0)-1],2)}), était estimée à \Sexpr{round(re$surv[which.min((re$time-24)<0)-1],2)} (95 \% \Sexpr{round(re$lower[which.min((re$time-24)<0)-1],2)} - \Sexpr{round(re$upper[which.min((re$time-24)<0)-1],2)}) à 2 ans. OS à 4 ans était de  \Sexpr{round(re$surv[which.min((re$time-48)<0)-1],2)} (95 \% \Sexpr{round(re$lower[which.min((re$time-48)<0)-1],2)} - \Sexpr{round(re$upper[which.min((re$time-48)<0)-1],2)}).
+
+
+La médiane de survie était de \Sexpr{median_os[4]} mois (95 \% \Sexpr{median_os[5]} - \Sexpr{median_os[6]}).
+
+\begin{center}
+<<label=figa,fig=TRUE,echo=FALSE, include=FALSE>>=
+plot(gtt)
+@
+\includegraphics[width=0.8\textwidth]{C:/Users/adupont/Documents/thesemarie/rapport_dermato-figa.pdf}
+\captionof{figure}{Survie Globale}
+
+\end{center}
+
+
+
+
+
+
+
+\begin{center}
+<<label=figa2,fig=TRUE,echo=FALSE, include=FALSE>>=
+plot(km_os_ch)
+@
+\includegraphics[width=0.8\textwidth]{C:/Users/adupont/Documents/thesemarie/rapport_dermato-figa2.pdf}
+\captionof{figure}{Survie Globale selon le type de chirurgie avant la chimiothérapie}
+
+\end{center}
+
+La survie entre les deux groupes opérés (n=\Sexpr{table(dermato$chir_emblee,exclude=NULL)[2]}) ou non d'emblée  (n= \Sexpr{table(dermato$chir_emblee,exclude=NULL)[1]}) au stade IV n'était pas significativment différente (Test du log-rank p=\Sexpr{round(1-pchisq(survdiff(os ~ chir_emblee,data=dermato)$chisq,1) ,2)}). 
+
+
+
+\begin{center}
+<<label=figb,fig=TRUE,echo=FALSE, include=FALSE>>=
+km_pfs
+@
+\includegraphics[width=0.8\textwidth]{C:/Users/adupont/Documents/thesemarie/rapport_dermato-figb.pdf}
+\captionof{figure}{PFS Globale}
+
+\end{center}
+
+La PFS à un an était de \Sexpr{round(ref$surv[which.min((ref$time-12)<0)-1],2)} (95 \% \Sexpr{round(ref$lower[which.min((ref$time-12)<0)],2)} - \Sexpr{round(ref$upper[which.min((ref$time-12)<0)-1],2)}), était évaluée à  \Sexpr{round(ref$surv[which.min((ref$time-24)<0)-1],2)} (95 \% \Sexpr{round(ref$lower[which.min((ref$time-24)<0)-1],2)} - \Sexpr{round(ref$upper[which.min((ref$time-24)<0)-1],2)}) à 2 ans. La PFS à 4 ans était  \Sexpr{round(ref$surv[which.min((ref$time-48)<0)-1],2)} (95 \% \Sexpr{round(ref$lower[which.min((ref$time-48)<0)-1],2)} - \Sexpr{round(ref$upper[which.min((ref$time-48)<0)-1],2)}).La médiane de la PFS était de \Sexpr{median_pfs[3]} mois (95 \% \Sexpr{median_pfs[4]} - \Sexpr{median_pfs[5]}).
+
+
+
+
+\subsubsection{Après la premiére ligne de chimiothérapie}
+
+\begin{center}
+<<label=fig981,fig=TRUE,echo=FALSE, include=FALSE>>=
+plot(gttl1)
+@
+\includegraphics[width=0.8\textwidth]{C:/Users/adupont/Documents/thesemarie/rapport_dermato-fig981.pdf}
+\captionof{figure}{Survie et PFS après la premiére ligne de chimothérapie}
+
+\end{center}
+
+La médiane de survie post 1ère ligne était de \Sexpr{median_osl1[3]} mois, la médiane de la PFS était de \Sexpr{median_pfsl1[5]} mois. 
+
+\subsubsection{Après la seconde ligne de chimiothérapie}
+
+\Sexpr{nrow(dermato[!is.na(dermato$reponse_l2),])} patients ont suivi 2 lignes de chimiothérapie au minimum. 
+
+\begin{center}
+<<label=fig982,fig=TRUE,echo=FALSE, include=FALSE>>=
+km_pfs2_os2
+@
+\includegraphics[width=0.8\textwidth]{C:/Users/adupont/Documents/thesemarie/rapport_dermato-fig982.pdf}
+\captionof{figure}{Survie et PFS aprés la seconde ligne de chimothérapie chez les patients ayant eu au moins deux lignes de chimiothérapie}
+
+\end{center}
+
+\begin{landscape}
+\begin{longtable}{lllll}
+  \hline
+Survie post 1ére ligne & Survie à 12 mois (95\%CI) & Survie à 24 mois (95\%CI) & Survie à 36 mois (95\%CI) & Survie à 48 mois (95\%CI) \\ 
+  \hline
+OS post 1ere ligne  & \Sexpr{round(re1$surv[which.min((re1$time-12)<0)-1],2)} (95 \% \Sexpr{round(re1$lower[which.min((re1$time-12)<0)],2)} - \Sexpr{round(re1$upper[which.min((re1$time-12)<0)-1],2)})
+ & \Sexpr{round(re1$surv[which.min((re1$time-24)<0)-1],2)} (95 \% \Sexpr{round(re1$lower[which.min((re1$time-24)<0)],2)} - \Sexpr{round(re1$upper[which.min((re1$time-24)<0)-1],2)})
+ & \Sexpr{round(re1$surv[which.min((re1$time-36)<0)-1],2)} (95 \% \Sexpr{round(re1$lower[which.min((re1$time-36)<0)],2)} - \Sexpr{round(re1$upper[which.min((re1$time-36)<0)-1],2)})
+ & \Sexpr{round(re1$surv[which.min((re1$time-48)<0)-1],2)} (95 \% \Sexpr{round(re1$lower[which.min((re1$time-48)<0)],2)} - \Sexpr{round(re1$upper[which.min((re1$time-48)<0)-1],2)}) \\
+PFS post 1ere ligne  & \Sexpr{round(pf1$surv[which.min((pf1$time-12)<0)-1],2)} (95 \% \Sexpr{round(pf1$lower[which.min((pf1$time-12)<0)],2)} - \Sexpr{round(pf1$upper[which.min((pf1$time-12)<0)-1],2)})
+ & \Sexpr{round(pf1$surv[which.min((pf1$time-24)<0)-1],2)} (95 \% \Sexpr{round(pf1$lower[which.min((pf1$time-24)<0)],2)} - \Sexpr{round(pf1$upper[which.min((pf1$time-24)<0)-1],2)})
+ & \Sexpr{round(pf1$surv[which.min((pf1$time-36)<0)-1],2)} (95 \% \Sexpr{round(pf1$lower[which.min((pf1$time-36)<0)],2)} - \Sexpr{round(pf1$upper[which.min((pf1$time-36)<0)-1],2)})
+ & \Sexpr{round(pf1$surv[which.min((pf1$time-48)<0)-1],2)} (95 \% \Sexpr{round(pf1$lower[which.min((pf1$time-48)<0)],2)} - \Sexpr{round(pf1$upper[which.min((pf1$time-48)<0)-1],2)}) \\
+
+
+\hline
+\caption{Survie post 1ère ligne} 
+\label{tab:uoo}
+\end{longtable}
+
+
+
+
+\begin{longtable}{lll}
+  \hline
+Survie post 2nd ligne  & Survie à 6 mois (95\%CI) & Survie à 12 mois (95\%CI)  \\ 
+  \hline
+OS post 2eme ligne  & \Sexpr{round(re2$surv[which.min((re2$time-6)<0)-1],2)} (95 \% \Sexpr{round(re2$lower[which.min((re2$time-6)<0)],2)} - \Sexpr{round(re2$upper[which.min((re2$time-6)<0)-1],2)})
+ & \Sexpr{round(re2$surv[which.min((re2$time-12)<0)-1],2)} (95 \% \Sexpr{round(re2$lower[which.min((re2$time-12)<0)],2)} - \Sexpr{round(re2$upper[which.min((re2$time-12)<0)-1],2)})\\
+ PFS post 2eme ligne  & \Sexpr{round(pf2$surv[which.min((pf2$time-6)<0)-1],2)} (95 \% \Sexpr{round(pf2$lower[which.min((pf2$time-6)<0)],2)} - \Sexpr{round(pf2$upper[which.min((pf2$time-6)<0)-1],2)})
+ & \Sexpr{round(pf2$surv[which.min((pf2$time-12)<0)-1],2)} (95 \% \Sexpr{round(pf2$lower[which.min((pf2$time-12)<0)],2)} - \Sexpr{round(pf2$upper[which.min((pf2$time-12)<0)-1],2)})\\
+
+
+\hline
+\caption{Survie post 2ème ligne} 
+\label{tab:uoo}
+\end{longtable}
+
+\end{landscape}
+
 
 
 
